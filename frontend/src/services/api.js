@@ -4,9 +4,7 @@ const api = axios.create({
   baseURL: '',
 });
 
-const token = localStorage.getItem('token');
-if (token) {
-  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-}
+// Token initialization is handled in AuthContext.jsx
+// This ensures the token is set after authentication, not at module load
 
 export default api;

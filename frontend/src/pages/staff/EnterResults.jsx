@@ -34,7 +34,7 @@ export default function StaffEnterResults() {
 
   useEffect(() => {
     if (selectedAssignment) {
-      const asgn = assignments.find(a => String(a.id) === String(selectedAssignment));
+      const asgn = assignments.find(a => parseInt(a.id) === parseInt(selectedAssignment));
       if (asgn) {
         api.get(`/api/admin/sessions`).then(r => {
           const session = r.data.find(s => s.name === asgn.session_name);

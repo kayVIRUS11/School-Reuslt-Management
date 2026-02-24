@@ -1,19 +1,15 @@
 # Backend
-backend/__pycache__/
-backend/app/__pycache__/
-backend/app/routes/__pycache__/
-backend/app/utils/__pycache__/
-backend/*.db
-backend/instance/
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.db
+instance/
 .env
 
 # Frontend
 frontend/node_modules/
 frontend/dist/
-frontend/.eslintrc.cjs
 
 # General
 .DS_Store

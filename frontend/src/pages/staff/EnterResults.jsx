@@ -87,7 +87,7 @@ export default function EnterResults() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Select Assignment</label>
             <select value={selectedAssignment} onChange={e => setSelectedAssignment(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <option value="">Choose subject & class</option>
-              {assignments.map(a => <option key={a.id} value={a.id}>{a.subject_name} — {a.class_name} ({a.session_name})</option>)}
+              {assignments.map(a => <option key={a.id} value={a.id}>{a.subject_name} — {a.class_name}</option>)}
             </select>
           </div>
           <div>

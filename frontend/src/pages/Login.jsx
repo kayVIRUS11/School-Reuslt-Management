@@ -34,7 +34,7 @@ export default function Login() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-blue-800 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🎓</div>
+
           <h1 className="text-2xl font-bold text-gray-800">School Result System</h1>
           <p className="text-gray-500 mt-2">Sign in to your account</p>
         </div>

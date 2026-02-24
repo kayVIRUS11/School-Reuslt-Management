@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity
-from ..models import db, User, Student, Staff, ClassRoom, Subject, AcademicSession, Term, StaffSubjectClass, Result, GradingScale
-from ..utils.auth import hash_password, role_required
+from ..models import db, User, Student, Staff, ClassRoom, Subject, AcademicSession, Term, StaffSubjectClass, Result, GradingScale, ClassSubject
+from ..utils.auth import hash_password, role_required, generate_password
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -16,16 +16,17 @@ def get_students():
 @role_required('admin')
 def create_student():
     data = request.get_json()
-    required = ['reg_number', 'password', 'first_name', 'last_name']
+    required = ['reg_number', 'first_name', 'last_name']
     if not all(data.get(f) for f in required):
         return jsonify({'error': 'Missing required fields'}), 400
     
     if User.query.filter_by(username=data['reg_number']).first():
         return jsonify({'error': 'Registration number already exists'}), 409
     
+    plain_password = generate_password()
     user = User(
         username=data['reg_number'],
-        password_hash=hash_password(data['password']),
+        password_hash=hash_password(plain_password),
         role='student',
         first_name=data['first_name'],
         last_name=data['last_name']
@@ -42,7 +43,7 @@ def create_student():
     )
     db.session.add(student)
     db.session.commit()
-    return jsonify(student.to_dict()), 201
+    return jsonify({'student': student.to_dict(), 'generated_password': plain_password}), 201
 
 @admin_bp.route('/students/<int:student_id>', methods=['PUT'])
 @role_required('admin')
@@ -76,6 +77,15 @@ def delete_student(student_id):
     db.session.commit()
     return jsonify({'message': 'Student deleted'})
 
+@admin_bp.route('/students/<int:student_id>/reset-password', methods=['POST'])
+@role_required('admin')
+def reset_student_password(student_id):
+    student = Student.query.get_or_404(student_id)
+    plain_password = generate_password()
+    student.user.password_hash = hash_password(plain_password)
+    db.session.commit()
+    return jsonify({'generated_password': plain_password})
+
 # Staff
 @admin_bp.route('/staff', methods=['GET'])
 @role_required('admin')
@@ -87,16 +97,17 @@ def get_staff():
 @role_required('admin')
 def create_staff():
     data = request.get_json()
-    required = ['staff_id_number', 'password', 'first_name', 'last_name']
+    required = ['staff_id_number', 'first_name', 'last_name']
     if not all(data.get(f) for f in required):
         return jsonify({'error': 'Missing required fields'}), 400
     
     if User.query.filter_by(username=data['staff_id_number']).first():
         return jsonify({'error': 'Staff ID already exists'}), 409
     
+    plain_password = generate_password()
     user = User(
         username=data['staff_id_number'],
-        password_hash=hash_password(data['password']),
+        password_hash=hash_password(plain_password),
         role='staff',
         first_name=data['first_name'],
         last_name=data['last_name']
@@ -107,11 +118,10 @@ def create_staff():
     staff = Staff(
         user_id=user.id,
         staff_id_number=data['staff_id_number'],
-        department=data.get('department')
     )
     db.session.add(staff)
     db.session.commit()
-    return jsonify(staff.to_dict()), 201
+    return jsonify({'staff': staff.to_dict(), 'generated_password': plain_password}), 201
 
 @admin_bp.route('/staff/<int:staff_id>', methods=['PUT'])
 @role_required('admin')
@@ -123,8 +133,6 @@ def update_staff(staff_id):
         staff.user.first_name = data['first_name']
     if 'last_name' in data:
         staff.user.last_name = data['last_name']
-    if 'department' in data:
-        staff.department = data['department']
     if 'password' in data and data['password']:
         staff.user.password_hash = hash_password(data['password'])
     
@@ -140,6 +148,15 @@ def delete_staff(staff_id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({'message': 'Staff deleted'})
+
+@admin_bp.route('/staff/<int:staff_id>/reset-password', methods=['POST'])
+@role_required('admin')
+def reset_staff_password(staff_id):
+    staff = Staff.query.get_or_404(staff_id)
+    plain_password = generate_password()
+    staff.user.password_hash = hash_password(plain_password)
+    db.session.commit()
+    return jsonify({'generated_password': plain_password})
 
 # Classes
 @admin_bp.route('/classes', methods=['GET'])
@@ -310,23 +327,24 @@ def delete_term(term_id):
 @role_required('admin')
 def assign_subject():
     data = request.get_json()
-    required = ['staff_id', 'subject_id', 'class_id', 'session_id']
+    required = ['staff_id', 'class_id']
     if not all(data.get(f) for f in required):
         return jsonify({'error': 'Missing required fields'}), 400
     
+    subject_id = data.get('subject_id')
+
     existing = StaffSubjectClass.query.filter_by(
-        subject_id=data['subject_id'],
+        staff_id=data['staff_id'],
         class_id=data['class_id'],
-        session_id=data['session_id']
+        subject_id=subject_id,
     ).first()
     if existing:
-        return jsonify({'error': 'This subject is already assigned for this class and session'}), 409
+        return jsonify({'error': 'This assignment already exists'}), 409
     
     assignment = StaffSubjectClass(
         staff_id=data['staff_id'],
-        subject_id=data['subject_id'],
+        subject_id=subject_id,
         class_id=data['class_id'],
-        session_id=data['session_id']
     )
     db.session.add(assignment)
     db.session.commit()
@@ -345,6 +363,38 @@ def delete_assignment(assignment_id):
     db.session.delete(assignment)
     db.session.commit()
     return jsonify({'message': 'Assignment deleted'})
+
+# Class Subjects
+@admin_bp.route('/class-subjects/<int:class_id>', methods=['GET'])
+@role_required('admin')
+def get_class_subjects(class_id):
+    class_subjects = ClassSubject.query.filter_by(class_id=class_id).all()
+    return jsonify([cs.to_dict() for cs in class_subjects])
+
+@admin_bp.route('/class-subjects', methods=['POST'])
+@role_required('admin')
+def create_class_subject():
+    data = request.get_json()
+    if not data.get('class_id') or not data.get('subject_id'):
+        return jsonify({'error': 'class_id and subject_id are required'}), 400
+    existing = ClassSubject.query.filter_by(
+        class_id=data['class_id'],
+        subject_id=data['subject_id']
+    ).first()
+    if existing:
+        return jsonify({'error': 'This subject is already assigned to the class'}), 409
+    cs = ClassSubject(class_id=data['class_id'], subject_id=data['subject_id'])
+    db.session.add(cs)
+    db.session.commit()
+    return jsonify(cs.to_dict()), 201
+
+@admin_bp.route('/class-subjects/<int:cs_id>', methods=['DELETE'])
+@role_required('admin')
+def delete_class_subject(cs_id):
+    cs = ClassSubject.query.get_or_404(cs_id)
+    db.session.delete(cs)
+    db.session.commit()
+    return jsonify({'message': 'Class subject deleted'})
 
 # Results
 @admin_bp.route('/results/pending', methods=['GET'])

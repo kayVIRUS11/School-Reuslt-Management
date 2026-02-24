@@ -1,11 +1,11 @@
-# 🎓 School Result Management System
+# School Result Management System
 
 A full-stack web application for managing academic results across three roles: **Admin**, **Staff/Teacher**, and **Student**.
 
 ![Login Page](https://github.com/user-attachments/assets/eb577ad5-a14a-41cd-af32-820662af4d33)
 ![Admin Dashboard](https://github.com/user-attachments/assets/aa5e0bde-9042-4ceb-ba4f-5ed5000c7386)
 
-## ✨ Features
+## Features
 
 - **Role-based access control** (Admin / Staff / Student)
 - **Username/ID-based authentication** — No email required
@@ -17,7 +17,7 @@ A full-stack web application for managing academic results across three roles: *
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -28,7 +28,7 @@ A full-stack web application for managing academic results across three roles: *
 
 ---
 
-## 🔑 Default Login Credentials
+## Default Login Credentials
 
 | Role | Username | Password |
 |------|----------|----------|
@@ -38,7 +38,7 @@ A full-stack web application for managing academic results across three roles: *
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 /backend
@@ -74,7 +74,7 @@ A full-stack web application for managing academic results across three roles: *
 
 ---
 
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### Prerequisites
 - Python 3.10+
@@ -125,7 +125,7 @@ Visit **http://localhost:5173** and log in with:
 
 ---
 
-## 📊 Score Breakdown
+## Score Breakdown
 
 | Component | Max Marks |
 |-----------|-----------|
@@ -148,7 +148,7 @@ Visit **http://localhost:5173** and log in with:
 
 ---
 
-## 👤 Role Descriptions
+## Role Descriptions
 
 ### Admin
 - Manages students, staff, classes, subjects, academic sessions and terms
@@ -167,7 +167,7 @@ Visit **http://localhost:5173** and log in with:
 
 ---
 
-## 🗄 Seed Data
+## Seed Data
 
 Running `python seed.py` creates:
 - **Admin account**: `admin` / `admin123`
@@ -178,7 +178,7 @@ Running `python seed.py` creates:
 
 ---
 
-## 🔌 API Endpoints
+## API Endpoints
 
 ### Auth
 | Method | Endpoint | Description |

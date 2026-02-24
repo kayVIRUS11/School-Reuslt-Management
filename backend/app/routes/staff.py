@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity
-from ..models import db, Student, Staff, Result, StaffSubjectClass, Term
+from ..models import db, Student, Staff, Result, StaffSubjectClass, Term, AcademicSession
 from ..utils.auth import role_required
 from ..utils.grading import calculate_total, calculate_grade
 from datetime import datetime
@@ -35,9 +35,16 @@ def enter_results():
     
     data = request.get_json()
     results_data = data.get('results', [])
+
+    current_term = Term.query.filter_by(is_current=True).first()
+    current_session = AcademicSession.query.filter_by(is_current=True).first()
     
     created = []
     for r in results_data:
+        if current_term and current_session:
+            if r.get('term_id') != current_term.id or r.get('session_id') != current_session.id:
+                return jsonify({'error': 'Results can only be entered for the current term and session'}), 400
+
         # Check if result already exists
         existing = Result.query.filter_by(
             student_id=r['student_id'],
@@ -102,6 +109,12 @@ def update_result(result_id):
         return jsonify({'error': 'Unauthorized'}), 403
     if result.status not in ('draft', 'rejected'):
         return jsonify({'error': 'Cannot edit submitted or approved results'}), 400
+
+    current_term = Term.query.filter_by(is_current=True).first()
+    current_session = AcademicSession.query.filter_by(is_current=True).first()
+    if current_term and current_session:
+        if result.term_id != current_term.id or result.session_id != current_session.id:
+            return jsonify({'error': 'Results can only be entered for the current term and session'}), 403
     
     data = request.get_json()
     try:

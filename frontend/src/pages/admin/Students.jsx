@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
 import Modal from '../../components/Modal';
-import { getStudents, createStudent, updateStudent, deleteStudent, getClasses } from '../../services/api';
+import { getStudents, createStudent, updateStudent, deleteStudent, getClasses, resetStudentPassword } from '../../services/api';
 import toast from 'react-hot-toast';
 
-const EMPTY_FORM = { reg_number: '', first_name: '', last_name: '', password: '', class_id: '', guardian_name: '', guardian_phone: '' };
+const EMPTY_FORM = { reg_number: '', first_name: '', last_name: '', class_id: '', guardian_name: '', guardian_phone: '' };
 
 export default function Students() {
   const [students, setStudents] = useState([]);
@@ -13,6 +13,8 @@ export default function Students() {
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [generatedPassword, setGeneratedPassword] = useState('');
+  const [passwordModal, setPasswordModal] = useState(false);
 
   const load = () => {
     getStudents().then(r => setStudents(r.data));
@@ -26,7 +28,7 @@ export default function Students() {
   );
 
   const openCreate = () => { setEditing(null); setForm(EMPTY_FORM); setModal(true); };
-  const openEdit = (s) => { setEditing(s); setForm({ reg_number: s.reg_number, first_name: s.first_name, last_name: s.last_name, password: '', class_id: s.class_id || '', guardian_name: s.guardian_name || '', guardian_phone: s.guardian_phone || '' }); setModal(true); };
+  const openEdit = (s) => { setEditing(s); setForm({ reg_number: s.reg_number, first_name: s.first_name, last_name: s.last_name, class_id: s.class_id || '', guardian_name: s.guardian_name || '', guardian_phone: s.guardian_phone || '' }); setModal(true); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,12 +36,15 @@ export default function Students() {
       if (editing) {
         await updateStudent(editing.id, form);
         toast.success('Student updated');
+        setModal(false);
+        load();
       } else {
-        await createStudent(form);
-        toast.success('Student created');
+        const r = await createStudent(form);
+        setGeneratedPassword(r.data.generated_password);
+        setPasswordModal(true);
+        setModal(false);
+        load();
       }
-      setModal(false);
-      load();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Error saving student');
     }
@@ -53,6 +58,16 @@ export default function Students() {
       load();
     } catch (err) {
       toast.error('Error deleting student');
+    }
+  };
+
+  const handleResetPassword = async (id) => {
+    try {
+      const res = await resetStudentPassword(id);
+      setGeneratedPassword(res.data.generated_password);
+      setPasswordModal(true);
+    } catch (err) {
+      toast.error('Error resetting password');
     }
   };
 
@@ -84,6 +99,7 @@ export default function Students() {
                 <td className="px-4 py-3 text-sm flex gap-2">
                   <button onClick={() => openEdit(s)} className="text-indigo-600 hover:underline">Edit</button>
                   <button onClick={() => handleDelete(s.id)} className="text-red-500 hover:underline">Delete</button>
+                  <button onClick={() => handleResetPassword(s.id)} className="text-yellow-600 hover:underline">Reset Password</button>
                 </td>
               </tr>
             ))}
@@ -113,10 +129,6 @@ export default function Students() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password {editing ? '(leave blank to keep)' : '*'}</label>
-            <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required={!editing} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-          </div>
-          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Class</label>
             <select value={form.class_id} onChange={e => setForm({...form, class_id: e.target.value})} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <option value="">Select class</option>
@@ -137,6 +149,17 @@ export default function Students() {
           </div>
         </form>
       </Modal>
+
+      <Modal isOpen={passwordModal} onClose={() => setPasswordModal(false)} title="Generated Password">
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">Share this password with the user. It will not be shown again.</p>
+          <div className="bg-gray-100 rounded-lg p-4 font-mono text-lg text-center font-bold text-gray-800">{generatedPassword}</div>
+          <div className="flex justify-end">
+            <button onClick={() => setPasswordModal(false)} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Done</button>
+          </div>
+        </div>
+      </Modal>
     </Layout>
   );
 }
+

@@ -16,14 +16,14 @@ export default function EnterResults() {
   const [assignments, setAssignments] = useState([]);
   const [terms, setTerms] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState('');
-  const [selectedTerm, setSelectedTerm] = useState('');
+  const [currentTerm, setCurrentTerm] = useState(null);
   const [students, setStudents] = useState([]);
   const [scores, setScores] = useState({});
   const [savedIds, setSavedIds] = useState([]);
 
   useEffect(() => {
     getMyAssignments().then(r => setAssignments(r.data));
-    getTerms().then(r => { setTerms(r.data); const cur = r.data.find(t => t.is_current); if (cur) setSelectedTerm(String(cur.id)); });
+    getTerms().then(r => { setTerms(r.data); const cur = r.data.find(t => t.is_current); if (cur) setCurrentTerm(cur); });
   }, []);
 
   const assignment = assignments.find(a => String(a.id) === selectedAssignment);
@@ -50,13 +50,13 @@ export default function EnterResults() {
   };
 
   const handleSave = async () => {
-    if (!assignment || !selectedTerm) { toast.error('Select assignment and term'); return; }
+    if (!assignment || !currentTerm) { toast.error('Select assignment and ensure a current term is set'); return; }
     const resultsData = students.map(s => ({
       student_id: s.id,
       subject_id: assignment.subject_id,
       class_id: assignment.class_id,
-      session_id: assignment.session_id,
-      term_id: parseInt(selectedTerm),
+      session_id: currentTerm.session_id,
+      term_id: currentTerm.id,
       ca1: parseFloat(scores[s.id]?.ca1) || 0,
       ca2: parseFloat(scores[s.id]?.ca2) || 0,
       ca3: parseFloat(scores[s.id]?.ca3) || 0,
@@ -87,15 +87,15 @@ export default function EnterResults() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Select Assignment</label>
             <select value={selectedAssignment} onChange={e => setSelectedAssignment(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <option value="">Choose subject & class</option>
-              {assignments.map(a => <option key={a.id} value={a.id}>{a.subject_name} — {a.class_name} ({a.session_name})</option>)}
+              {assignments.map(a => <option key={a.id} value={a.id}>{a.subject_name} — {a.class_name}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Select Term</label>
-            <select value={selectedTerm} onChange={e => setSelectedTerm(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              <option value="">Choose term</option>
-              {terms.map(t => <option key={t.id} value={t.id}>{t.name} ({t.session_name})</option>)}
-            </select>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Current Term</label>
+            {currentTerm
+              ? <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700">{currentTerm.name} ({currentTerm.session_name})</p>
+              : <p className="px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-700">No current term set</p>
+            }
           </div>
         </div>
       </div>
@@ -148,8 +148,8 @@ export default function EnterResults() {
             </table>
           </div>
           <div className="flex gap-3 justify-end">
-            <button onClick={handleSave} className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">💾 Save Draft</button>
-            <button onClick={handleSubmit} disabled={savedIds.length === 0} className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50">📤 Submit for Approval</button>
+            <button onClick={handleSave} className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Save Draft</button>
+            <button onClick={handleSubmit} disabled={savedIds.length === 0} className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50">Submit for Approval</button>
           </div>
         </>
       )}

@@ -5,7 +5,7 @@ A complete React + Vite + Tailwind CSS frontend application for the School Resul
 
 ## Technology Stack
 - **Vite**: Ultra-fast frontend build tool with Hot Module Replacement (HMR)
-- **React 18**: Modern UI library with hooks
+- **React 19**: Modern UI library with hooks
 - **React Router v6**: Client-side routing and navigation
 - **Tailwind CSS**: Utility-first CSS framework with @tailwindcss/vite plugin
 - **Axios**: Promise-based HTTP client for API requests

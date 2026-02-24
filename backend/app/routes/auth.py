@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
-from ..models import User
-from ..utils.auth import check_password
+from ..models import db, User
+from ..utils.auth import check_password, hash_password
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -39,3 +39,21 @@ def me():
 @jwt_required()
 def logout():
     return jsonify({'message': 'Logged out successfully'})
+
+@auth_bp.route('/change-password', methods=['PUT'])
+@jwt_required()
+def change_password():
+    data = request.get_json()
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+    if not current_password or not new_password:
+        return jsonify({'error': 'current_password and new_password are required'}), 400
+    user_id = get_jwt_identity()
+    user = User.query.get(int(user_id))
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    if not check_password(current_password, user.password_hash):
+        return jsonify({'error': 'Current password is incorrect'}), 400
+    user.password_hash = hash_password(new_password)
+    db.session.commit()
+    return jsonify({'message': 'Password changed successfully'})

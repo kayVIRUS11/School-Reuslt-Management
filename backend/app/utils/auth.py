@@ -1,4 +1,6 @@
 import bcrypt
+import secrets
+import string
 from functools import wraps
 from flask import jsonify
 from flask_jwt_extended import verify_jwt_in_request, get_jwt
@@ -8,6 +10,10 @@ def hash_password(password):
 
 def check_password(password, password_hash):
     return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
+
+def generate_password(length=8):
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
 
 def role_required(*roles):
     def decorator(fn):

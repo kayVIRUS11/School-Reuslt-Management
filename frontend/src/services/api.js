@@ -73,4 +73,16 @@ export const getStaffStats = () => api.get('/staff/stats');
 export const getStudentProfile = () => api.get('/student/profile');
 export const getStudentResults = (params) => api.get('/student/results', { params });
 
+// Admin - Reset passwords
+export const resetStudentPassword = (id) => api.post(`/admin/students/${id}/reset-password`);
+export const resetStaffPassword = (id) => api.post(`/admin/staff/${id}/reset-password`);
+
+// Auth - Change password
+export const changePassword = (data) => api.put('/auth/change-password', data);
+
+// Admin - Class Subjects
+export const getClassSubjects = (classId) => api.get(`/admin/class-subjects/${classId}`);
+export const addClassSubject = (data) => api.post('/admin/class-subjects', data);
+export const deleteClassSubject = (id) => api.delete(`/admin/class-subjects/${id}`);
+
 export default api;

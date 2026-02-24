@@ -18,10 +18,10 @@ export default function AdminDashboard() {
       <p className="text-gray-500 mb-8">Welcome back, {user?.first_name}!</p>
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard title="Total Students" value={stats.total_students} icon="👨‍🎓" color="indigo" />
-          <StatCard title="Total Staff" value={stats.total_staff} icon="👨‍🏫" color="blue" />
-          <StatCard title="Pending Results" value={stats.pending_results} icon="⏳" color="yellow" />
-          <StatCard title="Total Classes" value={stats.total_classes} icon="🏫" color="green" />
+          <StatCard title="Total Students" value={stats.total_students} color="indigo" />
+          <StatCard title="Total Staff" value={stats.total_staff} color="blue" />
+          <StatCard title="Pending Results" value={stats.pending_results} color="yellow" />
+          <StatCard title="Total Classes" value={stats.total_classes} color="green" />
         </div>
       )}
     </Layout>

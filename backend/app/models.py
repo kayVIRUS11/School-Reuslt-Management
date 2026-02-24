@@ -55,7 +55,6 @@ class Staff(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     staff_id_number = db.Column(db.String(50), unique=True, nullable=False)
-    department = db.Column(db.String(100))
 
     assignments = db.relationship('StaffSubjectClass', backref='staff', cascade='all, delete-orphan')
     results = db.relationship('Result', backref='staff')
@@ -65,7 +64,6 @@ class Staff(db.Model):
             'id': self.id,
             'user_id': self.user_id,
             'staff_id_number': self.staff_id_number,
-            'department': self.department,
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,
             'username': self.user.username,
@@ -78,7 +76,6 @@ class AcademicSession(db.Model):
     is_current = db.Column(db.Boolean, default=False)
 
     terms = db.relationship('Term', backref='session', cascade='all, delete-orphan')
-    assignments = db.relationship('StaffSubjectClass', backref='session', cascade='all, delete-orphan')
     results = db.relationship('Result', backref='session')
 
     def to_dict(self):
@@ -142,9 +139,8 @@ class StaffSubjectClass(db.Model):
     __tablename__ = 'staff_subject_classes'
     id = db.Column(db.Integer, primary_key=True)
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
-    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=True)
     class_id = db.Column(db.Integer, db.ForeignKey('classrooms.id'), nullable=False)
-    session_id = db.Column(db.Integer, db.ForeignKey('academic_sessions.id'), nullable=False)
 
     def to_dict(self):
         return {
@@ -153,12 +149,29 @@ class StaffSubjectClass(db.Model):
             'staff_name': f"{self.staff.user.first_name} {self.staff.user.last_name}",
             'staff_id_number': self.staff.staff_id_number,
             'subject_id': self.subject_id,
-            'subject_name': self.subject.name,
-            'subject_code': self.subject.code,
+            'subject_name': self.subject.name if self.subject else 'All Subjects',
+            'subject_code': self.subject.code if self.subject else '',
             'class_id': self.class_id,
             'class_name': self.classroom.name,
-            'session_id': self.session_id,
-            'session_name': self.session.name,
+        }
+
+class ClassSubject(db.Model):
+    __tablename__ = 'class_subjects'
+    id = db.Column(db.Integer, primary_key=True)
+    class_id = db.Column(db.Integer, db.ForeignKey('classrooms.id'), nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
+
+    classroom = db.relationship('ClassRoom', backref='class_subjects')
+    subject_rel = db.relationship('Subject', backref='class_subjects')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'class_id': self.class_id,
+            'class_name': self.classroom.name,
+            'subject_id': self.subject_id,
+            'subject_name': self.subject_rel.name,
+            'subject_code': self.subject_rel.code,
         }
 
 class GradingScale(db.Model):

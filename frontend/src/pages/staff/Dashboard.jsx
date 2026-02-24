@@ -18,10 +18,10 @@ export default function StaffDashboard() {
       <p className="text-gray-500 mb-8">Welcome, {user?.first_name} {user?.last_name}</p>
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard title="My Assignments" value={stats.assignments} icon="📋" color="indigo" />
-          <StatCard title="Draft Results" value={stats.draft_results} icon="✏️" color="yellow" />
-          <StatCard title="Submitted" value={stats.submitted_results} icon="⏳" color="blue" />
-          <StatCard title="Approved" value={stats.approved_results} icon="✅" color="green" />
+          <StatCard title="My Assignments" value={stats.assignments} color="indigo" />
+          <StatCard title="Draft Results" value={stats.draft_results} color="yellow" />
+          <StatCard title="Submitted" value={stats.submitted_results} color="blue" />
+          <StatCard title="Approved" value={stats.approved_results} color="green" />
         </div>
       )}
     </Layout>

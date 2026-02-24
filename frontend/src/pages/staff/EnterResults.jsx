@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
-import { getMyAssignments, getClassStudents, getTerms, enterResults, submitResults } from '../../services/api';
+import { getMyAssignments, getClassStudents, getStaffTerms, enterResults, submitResults } from '../../services/api';
 import toast from 'react-hot-toast';
 
 function calcGrade(total) {
@@ -23,7 +23,7 @@ export default function EnterResults() {
 
   useEffect(() => {
     getMyAssignments().then(r => setAssignments(r.data));
-    getTerms().then(r => { setTerms(r.data); const cur = r.data.find(t => t.is_current); if (cur) setCurrentTerm(cur); });
+    getStaffTerms().then(r => { setTerms(r.data); const cur = r.data.find(t => t.is_current); if (cur) setCurrentTerm(cur); });
   }, []);
 
   const assignment = assignments.find(a => String(a.id) === selectedAssignment);

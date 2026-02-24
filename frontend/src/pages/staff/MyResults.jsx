@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
-import { getStaffResults, getTerms, getClasses, getSubjects } from '../../services/api';
+import { getStaffResults, getStaffTerms, getStaffClasses, getStaffSubjects } from '../../services/api';
 
 const STATUS_COLORS = { draft: 'bg-gray-100 text-gray-600', submitted: 'bg-yellow-100 text-yellow-700', approved: 'bg-green-100 text-green-700', rejected: 'bg-red-100 text-red-700' };
 
@@ -12,9 +12,9 @@ export default function MyResults() {
   const [filters, setFilters] = useState({ term_id: '', class_id: '', subject_id: '' });
 
   useEffect(() => {
-    getTerms().then(r => setTerms(r.data));
-    getClasses().then(r => setClasses(r.data));
-    getSubjects().then(r => setSubjects(r.data));
+    getStaffTerms().then(r => setTerms(r.data));
+    getStaffClasses().then(r => setClasses(r.data));
+    getStaffSubjects().then(r => setSubjects(r.data));
   }, []);
 
   useEffect(() => {

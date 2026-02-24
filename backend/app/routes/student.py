@@ -9,6 +9,18 @@ def get_student_profile():
     user_id = int(get_jwt_identity())
     return Student.query.filter_by(user_id=user_id).first()
 
+@student_bp.route('/terms', methods=['GET'])
+@role_required('student')
+def get_student_terms():
+    terms = Term.query.all()
+    return jsonify([t.to_dict() for t in terms])
+
+@student_bp.route('/sessions', methods=['GET'])
+@role_required('student')
+def get_student_sessions():
+    sessions = AcademicSession.query.all()
+    return jsonify([s.to_dict() for s in sessions])
+
 @student_bp.route('/profile', methods=['GET'])
 @role_required('student')
 def get_profile():

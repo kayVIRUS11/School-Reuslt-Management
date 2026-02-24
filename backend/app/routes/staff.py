@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity
-from ..models import db, Student, Staff, Result, StaffSubjectClass, Term, AcademicSession
+from ..models import db, Student, Staff, Result, StaffSubjectClass, Term, AcademicSession, ClassRoom, Subject
 from ..utils.auth import role_required
 from ..utils.grading import calculate_total, calculate_grade
 from datetime import datetime
@@ -166,6 +166,30 @@ def get_staff_results():
         query = query.filter_by(subject_id=int(request.args['subject_id']))
     results = query.all()
     return jsonify([r.to_dict() for r in results])
+
+@staff_bp.route('/terms', methods=['GET'])
+@role_required('staff')
+def get_staff_terms():
+    terms = Term.query.all()
+    return jsonify([t.to_dict() for t in terms])
+
+@staff_bp.route('/sessions', methods=['GET'])
+@role_required('staff')
+def get_staff_sessions():
+    sessions = AcademicSession.query.all()
+    return jsonify([s.to_dict() for s in sessions])
+
+@staff_bp.route('/subjects', methods=['GET'])
+@role_required('staff')
+def get_staff_subjects():
+    subjects = Subject.query.all()
+    return jsonify([s.to_dict() for s in subjects])
+
+@staff_bp.route('/classes', methods=['GET'])
+@role_required('staff')
+def get_staff_classes():
+    classes = ClassRoom.query.all()
+    return jsonify([c.to_dict() for c in classes])
 
 @staff_bp.route('/stats', methods=['GET'])
 @role_required('staff')

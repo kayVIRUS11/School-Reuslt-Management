@@ -68,10 +68,16 @@ export const updateResult = (id, data) => api.put(`/staff/results/${id}`, data);
 export const submitResults = (data) => api.post('/staff/results/submit', data);
 export const getStaffResults = (params) => api.get('/staff/results', { params });
 export const getStaffStats = () => api.get('/staff/stats');
+export const getStaffTerms = () => api.get('/staff/terms');
+export const getStaffSessions = () => api.get('/staff/sessions');
+export const getStaffSubjects = () => api.get('/staff/subjects');
+export const getStaffClasses = () => api.get('/staff/classes');
 
 // Student
 export const getStudentProfile = () => api.get('/student/profile');
 export const getStudentResults = (params) => api.get('/student/results', { params });
+export const getStudentTerms = () => api.get('/student/terms');
+export const getStudentSessions = () => api.get('/student/sessions');
 
 // Admin - Reset passwords
 export const resetStudentPassword = (id) => api.post(`/admin/students/${id}/reset-password`);
